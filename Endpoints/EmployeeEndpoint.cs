@@ -8,7 +8,7 @@ namespace backend.Endpoints;
 
 public static class EmployeeEndpoint
 {
-    const string GetEmployeeEndpoint ="GetEmployee";
+    const string GetEmployeeEndpoint ="GetEmployee";/* 
     private static readonly List<EmployeeSummary> employees=[
         new (
             1,
@@ -28,49 +28,50 @@ public static class EmployeeEndpoint
             "Developer"
 
         )
-    ];
+    ]; */
 public static WebApplication MapEmployeesEndpoint(this WebApplication app){
 
 var group=app.MapGroup("employees").WithParameterValidation();
 
-group.MapGet("/", ( EmployeeStoreContext dbContext) =>
-dbContext.Employees
+group.MapGet("/", async ( EmployeeStoreContext dbContext) =>
+await dbContext.Employees
         .Include(game=>game.Job)
         .Select(game=>game.ToEmployeeSummaryDto())
-        .AsNoTracking());
+        .AsNoTracking()
+        .ToListAsync());
 
-group.MapGet("/{id}", (int id,EmployeeStoreContext dbContext) =>{ 
-     EmpJob? emp=dbContext.Employees.Find(id);
+group.MapGet("/{id}",async (int id,EmployeeStoreContext dbContext) =>{ 
+     EmpJob? emp=await dbContext.Employees.FindAsync(id);
      return emp is null ? Results.NotFound():Results.Ok(emp.ToEmployeeDetailsDto());
 }).WithName(GetEmployeeEndpoint);
 
-group.MapPost("/", (CreateEmployee newEmplopyee, EmployeeStoreContext dbContext) =>{
+group.MapPost("/",async (CreateEmployee newEmplopyee, EmployeeStoreContext dbContext) =>{
         EmpJob emp= newEmplopyee.ToEntity();
     
      
        dbContext.Employees.Add(emp);
-       dbContext.SaveChanges();
+       await dbContext.SaveChangesAsync();
   
        return Results.CreatedAtRoute(GetEmployeeEndpoint,new{id=emp.Id},emp.ToEmployeeDetailsDto());
  
 });
 
-group.MapPut("/{id}",(int id,UpdateEmployee updateemployee,EmployeeStoreContext dbContext) =>{
-    var existingEmployee =dbContext.Employees.Find(id);
+group.MapPut("/{id}", async (int id,UpdateEmployee updateemployee,EmployeeStoreContext dbContext) =>{
+    var existingEmployee = await dbContext.Employees.FindAsync(id);
     if(existingEmployee is null){
         return Results.NotFound();
     }
     dbContext.Entry(existingEmployee)
                     .CurrentValues
                     .SetValues(updateemployee.ToEntity(id));
-    dbContext.SaveChanges();
+   await dbContext.SaveChangesAsync();
   
     return Results.NoContent();
 }); 
 
-group.MapDelete("/{id}",(int id,EmployeeStoreContext dbContext)=>{
-    dbContext.Employees.Where(game=>game.Id == id)
-                        .ExecuteDelete();
+group.MapDelete("/{id}",async (int id,EmployeeStoreContext dbContext)=>{
+   await dbContext.Employees.Where(game=>game.Id == id)
+                        .ExecuteDeleteAsync();
     return Results.NoContent();
 });
 

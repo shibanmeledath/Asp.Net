@@ -1,4 +1,3 @@
-using System.Data.Common;
 using backend.Data;
 using backend.Endpoints;
 
@@ -9,5 +8,6 @@ builder.Services.AddSqlite<EmployeeStoreContext>(ConnString);
 var app = builder.Build();
 
 app.MapEmployeesEndpoint();
-app.MigrateDb();
+app.MapJobsEndpoints();
+await app.MigrateDbAsync();
 app.Run();
