@@ -1,0 +1,33 @@
+GET http://localhost:5187/employees
+
+###
+GET http://localhost:5187/employees/2
+
+###
+POST http://localhost:5187/employees
+Content-Type: application/json
+
+ {
+   
+    "name": "rahul",
+    "age": 22,
+    "email": "200ax3.zisdscl.com",
+    "salary": 2000,
+    "jobId": 5
+  }
+
+###
+PUT http://localhost:5187/employees/4
+Content-Type: application/json
+
+{
+   
+    "name": "rahul mathew",
+    "age": 27,
+    "email": "2s00ax3.zisdscl.com",
+    "salary": 2060,
+    "jobId": 4
+}
+
+###
+DELETE http://localhost:5187/employees/2
